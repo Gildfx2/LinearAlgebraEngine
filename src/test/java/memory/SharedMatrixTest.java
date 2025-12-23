@@ -1,11 +1,13 @@
 package memory;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SharedMatrixTest {
 
 
-    @org.junit.jupiter.api.Test
+    @Test
     void loadRowMajor() {
         double[][] data = {{1, 3}, {2, 4.5}, {5.1, 9}}; // 3x2 matrix
         SharedMatrix matrix = new SharedMatrix();
@@ -22,7 +24,7 @@ class SharedMatrixTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void loadColumnMajor() {
         double[][] data = {{1, 3}, {2, 4.5}, {5.1, 9}}; // 3x2 matrix
         SharedMatrix matrix = new SharedMatrix();
@@ -40,7 +42,7 @@ class SharedMatrixTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void testReadRowMajor_FromColumnMajorLoad() {
         double[][] original = {
                 {1.0, 2.0},

@@ -75,6 +75,7 @@ public class SharedVector {
         return result;
     }
 
+
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
         double[] result = new double[matrix.length()];

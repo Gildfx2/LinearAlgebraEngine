@@ -7,6 +7,9 @@ import scheduling.TiredThread;
 public class Main {
     public static void main(String[] args) throws IOException {
         // TODO: main
+        //input->input parser -> computationNode -> engine.run(computationNode) ->
+        // solves by using threads on each operator recursively -> solutionNode ->outputWriter
+
         if (args.length != 3) {
             System.err.println("Error: Invalid number of arguments.");
             System.exit(1);
