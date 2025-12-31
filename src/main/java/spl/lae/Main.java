@@ -5,7 +5,7 @@ import parser.*;
 import scheduling.TiredThread;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // TODO: main
         //input->input parser -> computationNode -> engine.run(computationNode) ->
         // solves by using threads on each operator recursively -> solutionNode ->outputWriter
@@ -22,24 +22,15 @@ public class Main {
                 System.err.println("Error: Number of threads must be at least 1.");
                 return;
             }
-            InputParser inputParser = new InputParser();
             try {
+                InputParser inputParser = new InputParser();
                 ComputationNode computationRoot = inputParser.parse(inputPath);
                 LinearAlgebraEngine engine = new LinearAlgebraEngine(numThreads);
                 ComputationNode solutionNode = engine.run(computationRoot);
                 double[][] solutionMatrix = solutionNode.getMatrix();
                 OutputWriter.write(solutionMatrix, outputPath);
 
-                // ============================================================
-                // 5. PRINT WORKER REPORT (Add this part)
-                // ============================================================
-                System.out.println("========================================");
-                System.out.println("Worker Activity Report:");
-                System.out.println(engine.getWorkerReport());
-                System.out.println("========================================");
-
             } catch (Exception e) {
-                e.printStackTrace();
                 OutputWriter.write(e.getMessage(), outputPath);
             }
 
@@ -49,7 +40,6 @@ public class Main {
             System.exit(1);
         } catch (Exception e) {
             System.err.println("An unexpected error occurred: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }

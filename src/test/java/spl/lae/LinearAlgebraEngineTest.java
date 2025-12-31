@@ -142,7 +142,7 @@ class LinearAlgebraEngineTest {
         ComputationNode add = createOpNode(ComputationNodeType.ADD, n1, n2);
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> lae.loadAndCompute(add));
-        assertEquals("Illegal operation:dimensions mismatch", e.getMessage());
+        assertEquals("Illegal operation: dimensions mismatch", e.getMessage());
     }
 
     @Test
@@ -155,6 +155,32 @@ class LinearAlgebraEngineTest {
         ComputationNode mul = createOpNode(ComputationNodeType.MULTIPLY, n1, n2);
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> lae.loadAndCompute(mul));
-        assertEquals("Illegal operation:dimensions mismatch", e.getMessage());
+        assertEquals("Illegal operation: dimensions mismatch", e.getMessage());
     }
+
+    @Test
+    void testValidation_BinaryOp_MissingOperand() {
+        LinearAlgebraEngine lae = new LinearAlgebraEngine(1);
+        ComputationNode nodeA = createLeafNode(new double[][]{{1}});
+
+        // ADD requires 2 children, we provide 1
+        ComputationNode addNode = createUnaryOpNode(ComputationNodeType.ADD, nodeA);
+
+        Exception e = assertThrows(IllegalArgumentException.class, () -> lae.loadAndCompute(addNode));
+        assertEquals("Illegal operation: binary operator expects at least two operands", e.getMessage());
+    }
+
+    @Test
+    void testValidation_UnaryOp_TooManyOperands() {
+        LinearAlgebraEngine lae = new LinearAlgebraEngine(1);
+        ComputationNode nodeA = createLeafNode(new double[][]{{1}});
+        ComputationNode nodeB = createLeafNode(new double[][]{{2}});
+
+        // NEGATE requires 1 child, we provide 2
+        ComputationNode negNode = createOpNode(ComputationNodeType.NEGATE, nodeA, nodeB);
+
+        Exception e = assertThrows(IllegalArgumentException.class, () -> lae.loadAndCompute(negNode));
+        assertEquals("Illegal operation: unary operator expects exactly one operand", e.getMessage());
+    }
+
 }

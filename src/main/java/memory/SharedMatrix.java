@@ -11,6 +11,7 @@ public class SharedMatrix {
 
     public SharedMatrix(double[][] matrix) {
         // TODO: construct matrix as row-major SharedVectors
+        vectors = new SharedVector[matrix.length];
         for(int i=0;i<matrix.length;i++){
             vectors[i] = new SharedVector(matrix[i],VectorOrientation.ROW_MAJOR);
         }

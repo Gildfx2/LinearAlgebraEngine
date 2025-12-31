@@ -87,13 +87,13 @@ public class TiredExecutor {
         StringBuilder reports = new StringBuilder();
 
         for (TiredThread worker : workers) {
-            long usedNs = worker.getTimeUsed();
-            long idleNs = worker.getTimeIdle();
+            long usedMs = worker.getTimeUsed();
+            long idleMs = worker.getTimeIdle();
 
             String report = "Worker " + worker.getWorkerId() +
                     ":\tFatigue: " + worker.getFatigue() +
-                    "\tTime used: " + usedNs + " ns" +
-                    "\tTime idle: " + idleNs + " ns";
+                    "\tTime used: " + usedMs +
+                    "\tTime idle: " + idleMs;
 
             reports.append(report).append("\n");
         }

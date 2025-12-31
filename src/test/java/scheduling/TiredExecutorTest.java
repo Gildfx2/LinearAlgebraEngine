@@ -113,10 +113,10 @@ class TiredExecutorTest {
         try { executor.shutdown(); } catch (InterruptedException e) {}
     }
 
-    /**
+     /**
      * Test 4: Work Distribution (Simple Version)
-     * בודק שכל העובדים משתתפים במאמץ.
-     * במקום להשתמש ב-Set, אנחנו משתמשים במערך מונים לפי ה-ID של העובד.
+     * Verifies that all workers participate in the effort.
+     * Instead of using a Set, we use an array of counters based on the worker's ID.
      */
     @Test
     void testWorkDistributionSimple() {
@@ -124,10 +124,10 @@ class TiredExecutorTest {
         int numTasks = 100;
         TiredExecutor executor = new TiredExecutor(numThreads);
 
-        // מערך מונים: תא 0 עבור עובד 0, תא 1 עבור עובד 1 וכו'
+        // Counter array: Index 0 for worker 0, Index 1 for worker 1, etc.
         AtomicInteger[] workerCounts = new AtomicInteger[numThreads];
 
-        // אתחול המערך
+        // Initialize the array
         for (int i = 0; i < numThreads; i++) {
             workerCounts[i] = new AtomicInteger(0);
         }
@@ -135,16 +135,16 @@ class TiredExecutorTest {
         List<Runnable> tasks = new ArrayList<>();
         for (int i = 0; i < numTasks; i++) {
             tasks.add(() -> {
-                // אנחנו משיגים את הת'רד הנוכחי שמריץ את המשימה הזו
+                // Get the current thread executing this task
                 Thread currentThread = Thread.currentThread();
 
-                // בודקים אם זה אכן העובד שלנו (TiredThread)
+                // Check if it is indeed our worker (TiredThread)
                 if (currentThread instanceof TiredThread) {
-                    // המרה (Cast) כדי שנוכל לגשת ל-ID שלו
+                    // Cast to access its ID
                     TiredThread worker = (TiredThread) currentThread;
                     int id = worker.getWorkerId();
 
-                    // העלאת המונה של העובד הספציפי הזה
+                    // Increment the counter of this specific worker
                     workerCounts[id].incrementAndGet();
                 }
             });
@@ -152,7 +152,7 @@ class TiredExecutorTest {
 
         executor.submitAll(tasks);
 
-        // שלב הבדיקה: עוברים על המערך ומוודאים שכל עובד עשה לפחות משימה אחת
+        // Validation step: iterating over the array and verifying that every worker performed at least one task
         for (int i = 0; i < numThreads; i++) {
             int count = workerCounts[i].get();
             System.out.println("Worker " + i + " completed " + count + " tasks.");
@@ -165,7 +165,7 @@ class TiredExecutorTest {
 
 
     /**
-     * Test 4: Work Distribution (Fairness Logic)
+     * Test 5: Work Distribution (Fairness Logic)
      * Verifies that the PriorityBlockingQueue correctly balances the load.
      * Since we base scheduling on "Fatigue", the work should be distributed roughly evenly.
      * We ensure that no worker is starved and that everyone performs a significant chunk of work.
@@ -217,6 +217,37 @@ class TiredExecutorTest {
             assertTrue(count >= minExpectedTasks,
                     "Worker " + i + " is under-utilized! Only did " + count + " tasks (Expected at least " + minExpectedTasks + ")");
         }
+
+        try { executor.shutdown(); } catch (InterruptedException e) {}
+    }
+
+
+    /**
+     * Test 6: Executor Reusability
+     * Verifies that the executor can process multiple batches of tasks sequentially.
+     * This ensures the wait/notify logic works correctly more than once.
+     */
+    @Test
+    void testExecutorReuse() {
+        int numThreads = 2;
+        TiredExecutor executor = new TiredExecutor(numThreads);
+        int numTasks = 10;
+
+        // Batch 1
+        List<Runnable> batch1 = new ArrayList<>();
+        AtomicInteger counter1 = new AtomicInteger(0);
+        for(int i=0; i<numTasks; i++) batch1.add(counter1::incrementAndGet);
+
+        executor.submitAll(batch1);
+        assertEquals(numTasks, counter1.get(), "Batch 1 failed to complete");
+
+        // Batch 2 (Running immediately after Batch 1 finishes)
+        List<Runnable> batch2 = new ArrayList<>();
+        AtomicInteger counter2 = new AtomicInteger(0);
+        for(int i=0; i<numTasks; i++) batch2.add(counter2::incrementAndGet);
+
+        executor.submitAll(batch2);
+        assertEquals(numTasks, counter2.get(), "Batch 2 failed to complete - Executor might be stuck");
 
         try { executor.shutdown(); } catch (InterruptedException e) {}
     }

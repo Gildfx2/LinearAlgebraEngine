@@ -41,28 +41,45 @@ public class LinearAlgebraEngine {
     public void loadAndCompute(ComputationNode node) {
         // TODO: load operand matrices
         // TODO: create compute tasks & submit tasks to executor
-        List<Runnable> tasks=null;
         List<ComputationNode> children = node.getChildren();
+        ComputationNodeType type = node.getNodeType();
+
+        // Validate operand counts
+        if (type == ComputationNodeType.ADD || type == ComputationNodeType.MULTIPLY) {
+            if (children.size() < 2) {
+                throw new IllegalArgumentException("Illegal operation: binary operator expects at least two operands");
+            }
+        } else if (node.getNodeType() == ComputationNodeType.NEGATE || type == ComputationNodeType.TRANSPOSE) {
+            if (children.size() != 1) {
+                throw new IllegalArgumentException("Illegal operation: unary operator expects exactly one operand");
+            }
+        } else {
+            throw new IllegalArgumentException("Illegal operation: unknown operator '" + node + "'");
+        }
+
+        List<Runnable> tasks=null;
+
         double[][] m1 = children.get(0).getMatrix();
-        if(node.getNodeType() == ComputationNodeType.ADD){
+
+        if(type == ComputationNodeType.ADD){
             double[][] m2 = children.get(1).getMatrix();
             // VALIDATION: Dimensions must be identical
             if (m1.length != m2.length || m1[0].length != m2[0].length) {
-                throw new IllegalArgumentException("Illegal operation:dimensions mismatch");
+                throw new IllegalArgumentException("Illegal operation: dimensions mismatch");
             }
             leftMatrix.loadRowMajor(m1);
             rightMatrix.loadRowMajor(m2);
             tasks = createAddTasks();
-        }else if(node.getNodeType() == ComputationNodeType.NEGATE){
+        }else if(type == ComputationNodeType.NEGATE){
             leftMatrix.loadRowMajor(m1);
             tasks = createNegateTasks();
-        }else if(node.getNodeType() == ComputationNodeType.MULTIPLY){
+        }else if(type == ComputationNodeType.MULTIPLY){
             double[][] m2 = children.get(1).getMatrix();
 
             // VALIDATION: Cols of A must equal Rows of B
             // Note: m1[0].length is columns of A, m2.length is rows of B
             if (m1[0].length != m2.length) {
-                throw new IllegalArgumentException("Illegal operation:dimensions mismatch");
+                throw new IllegalArgumentException("Illegal operation: dimensions mismatch");
             }
             leftMatrix.loadRowMajor(m1);
             rightMatrix.loadColumnMajor(m2);
@@ -158,9 +175,4 @@ public class LinearAlgebraEngine {
         // TODO: return summary of worker activity
         return executor.getWorkerReport();
     }
-
-
-
-
-
 }

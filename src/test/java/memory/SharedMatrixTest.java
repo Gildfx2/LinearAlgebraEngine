@@ -66,4 +66,39 @@ class SharedMatrixTest {
         }
     }
 
+    @Test
+    void testConstructorWithData() {
+        double[][] data = {{1.5, 2.5}, {3.5, 4.5}};
+
+        // initializing via constructor
+        SharedMatrix matrix = new SharedMatrix(data);
+
+        assertEquals(2, matrix.length(), "Constructor should initialize correct number of rows");
+        assertEquals(VectorOrientation.ROW_MAJOR, matrix.getOrientation(), "Constructor should default to ROW_MAJOR");
+
+        // checking the first value to ensure data copy happened
+        assertEquals(1.5, matrix.get(0).get(0), "Constructor did not copy data correctly");
+    }
+
+    @Test
+    void testReadRowMajor_FromRowMajorLoad() {
+        double[][] original = {
+                {10.0, 20.0, 30.0},
+                {40.0, 50.0, 60.0}
+        };
+
+        SharedMatrix matrix = new SharedMatrix();
+        matrix.loadRowMajor(original);
+
+        // this triggers the 'else' branch in readRowMajor which was previously untested
+        double[][] result = matrix.readRowMajor();
+
+        assertEquals(original.length, result.length, "Rows count mismatch");
+        assertEquals(original[0].length, result[0].length, "Cols count mismatch");
+
+        // verifying identity preservation
+        for (int r = 0; r < original.length; r++) {
+            assertArrayEquals(original[r], result[r], "Row " + r + " content mismatch");
+        }
+    }
 }

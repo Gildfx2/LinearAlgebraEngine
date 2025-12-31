@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="SPLA2" />
+        <module name="lga" />
       </profile>
     </annotationProcessing>
   </component>

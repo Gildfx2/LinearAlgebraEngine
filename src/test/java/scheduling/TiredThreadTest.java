@@ -135,4 +135,19 @@ class TiredThreadTest {
         worker.shutdown();
     }
 
+    /**
+     * Test 6: Null Task Handling
+     * Verifies that the worker rejects null tasks, usually throwing NullPointerException
+     * (standard behavior for BlockingQueue).
+     */
+    @Test
+    void testNullTask() {
+        TiredThread worker = new TiredThread(1, 1.0);
+
+        // Expect standard NullPointerException from BlockingQueue
+        assertThrows(NullPointerException.class, () -> {
+            worker.newTask(null);
+        }, "Should not accept null tasks");
+    }
+
 }
